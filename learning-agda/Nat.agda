@@ -151,3 +151,37 @@ s m *' n = n + (m * n)
 *-assoc' : (m n p : Nat) → ((m * n) * p) ≡ (m * (n * p))
 *-assoc' m n p = ≡-comm (*-assoc m n p)
 
+
+_^_ : Nat → Nat → Nat
+z ^ z = s z
+z ^ s n = z
+s m ^ z = s z
+s m ^ s n = s m * (s m ^ n)
+
+^-const : ∀ (n : Nat) → (s z ^ n) ≡ s z
+^-const z = refl (s z)
+^-const (s n) = ≡-trans (≡-cong ((s z ^ n) +_) (*-zero-r (s z ^ n))) (≡-trans (+-id-r (s z ^ n)) (^-const n))
+
+^-lemma1 : ∀ (x m : Nat) → (x ^ s m) ≡ (x * (x ^ m))
+^-lemma1 z m = refl z
+^-lemma1 (s x) m = refl ((s x ^ m) + ((s x ^ m) * x))
+
+^-+exponent' : ∀ (x m n : Nat) → ((x ^ m) * (x ^ n)) ≡ (x ^ (m + n))
+^-+exponent' z z n = ≡-trans (≡-cong ((z ^ n) +_) (*-zero-r (z ^ n))) (+-id-r (z ^ n))
+^-+exponent' (s x) z n = ≡-trans (≡-cong ((s x ^ n) +_) (*-zero-r (s x ^ n))) (+-id-r (s x ^ n))
+^-+exponent' x (s m) n = ≡-trans (≡-cong (_* (x ^ n))(^-lemma1 x m)) (≡-trans (*-assoc' x (x ^ m) (x ^ n)) (≡-trans (≡-cong (x *_) (^-+exponent' x m n)) (≡-comm (^-lemma1 x (m + n)))))
+
+^-+exponent : ∀ (x m n : Nat) → (x ^ (m + n)) ≡ ((x ^ m) * (x ^ n))
+^-+exponent x m n = ≡-comm (^-+exponent' x m n)
+
+^-*exponent : ∀ (x m n : Nat) → (x ^ (m * n)) ≡ ((x ^ m) ^ n)
+^-*exponent x m n = {!!}
+
+^-powof+ : ∀ (x y m : Nat) → ((x + y) ^ m) ≡ ((x ^ m) * (y ^ m))
+^-powof+ x y m = {!!}
+
+^-powof* : ∀ (x y m : Nat) → ((x * y) ^ m) ≡ ((x ^ m) * (y ^ m))
+^-powof* x y m = {!!}
+
+^-powof^ : ∀ (x m n : Nat) → ((x ^ m) ^ n) ≡ (x ^ (m * n))
+^-powof^ x m n = {!!}
