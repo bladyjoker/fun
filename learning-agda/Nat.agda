@@ -6,40 +6,40 @@ data Nat : Set where
   z : Nat
   s : Nat → Nat
 
+-- # Addition
 _+_ : Nat → Nat → Nat
 z + y = y
 s x + y = s (x + y)
 
-+-id-r : (m : Nat) → (m + z) ≡ m
-+-id-r z = refl z
-+-id-r (s m) = ≡-cong s (+-id-r m)
++z : (m : Nat) → (m + z) ≡ m
++z z = refl z
++z (s m) = ≡-cong s (+z m)
 
-+-id-r' : (m : Nat) → m ≡ (m + z)
-+-id-r' m = ≡-comm (+-id-r m)
++z-comm : (m : Nat) → m ≡ (m + z)
++z-comm m = ≡-comm (+z m)
 
-+-id-l : (m : Nat) → (z + m) ≡ m
-+-id-l m = refl m
+z+ : (m : Nat) → (z + m) ≡ m
+z+ m = refl m
 
-+-id-l' : (m : Nat) → m ≡ (z + m)
-+-id-l' m = ≡-comm (+-id-l m)
+z+-comm : (m : Nat) → m ≡ (z + m)
+z+-comm m = ≡-comm (z+ m)
 
-+-comm-zero : (m : Nat) → (m + z) ≡ (z + m)
-+-comm-zero z = refl z
-+-comm-zero (s m) = ≡-cong s (+-comm-zero m)
++-shift-s : (m n : Nat) → (s m + n) ≡ (m + s n)
++-shift-s z n = refl (s n)
++-shift-s (s m) n = ≡-cong s (+-shift-s m n)
 
-+-lemma2 : (m n : Nat) → (s m + n) ≡ (m + s n)
-+-lemma2 z n = refl (s n)
-+-lemma2 (s m) n = ≡-cong s (+-lemma2 m n)
+s+right : (m n : Nat) → s (m + n) ≡ (m + s n)
+s+right = +-shift-s
 
-+-lemma1 : (m n : Nat) → s (m + n) ≡ (m + s n)
-+-lemma1 = +-lemma2
-
-+-lemma0 : (m n : Nat) → s (m + n) ≡ (s m + n)
-+-lemma0 m n = refl (s (m + n))
+s+left : (m n : Nat) → s (m + n) ≡ (s m + n)
+s+left m n = refl (s (m + n))
 
 +-comm : (m n : Nat) → (m + n) ≡ (n + m)
-+-comm z n = ≡-comm (+-id-r n)
-+-comm (s m) n = ≡-trans (≡-cong s (+-comm m n)) (+-lemma2 n m)
++-comm z n = ≡-comm (+z n)
++-comm (s m) n = ≡-trans (≡-cong s (+-comm m n)) (+-shift-s n m)
+
++-comm-z : (m : Nat) → (m + z) ≡ (z + m)
++-comm-z m = +-comm m z
 
 +-assoc : (m n p : Nat) → ((m + n) + p) ≡ (m + (n + p))
 +-assoc z n p = refl (n + p)
@@ -55,20 +55,20 @@ _+'_ : Nat → Nat → Nat
 z +' y = y
 s x +' y = x +' s y
 
-+'-lemma1 : (m n : Nat) → (s m +' n) ≡ (m +' s n)
-+'-lemma1 z n = refl (s n)
-+'-lemma1 (s m) n = refl (m +' s (s n))
++'-shift-s : (m n : Nat) → (s m +' n) ≡ (m +' s n)
++'-shift-s z n = refl (s n)
++'-shift-s (s m) n = refl (m +' s (s n))
 
-+'-lemma2 : (m n : Nat) → (m +' s n) ≡ (s m +' n)
-+'-lemma2 m n = ≡-comm (+'-lemma1 m n)
++'-shift-s' : (m n : Nat) → (m +' s n) ≡ (s m +' n)
++'-shift-s' m n = ≡-comm (+'-shift-s m n)
 
-+'-lemma3 : (m n : Nat) → s (m +' n) ≡ (s m +' n)
-+'-lemma3 z n = refl (s n)
-+'-lemma3 (s m) n = +'-lemma3 m (s n)
+s+' : (m n : Nat) → s (m +' n) ≡ (s m +' n)
+s+' z n = refl (s n)
+s+' (s m) n = s+' m (s n)
 
 +'-id-r : (m : Nat) → (m +' z) ≡ m
 +'-id-r z = refl z
-+'-id-r (s m) = ≡-trans (≡-comm (+'-lemma3 m z)) (≡-cong s (+'-id-r m))
++'-id-r (s m) = ≡-trans (≡-comm (s+' m z)) (≡-cong s (+'-id-r m))
 
 +'-id-l : (m : Nat) → (z +' m) ≡ m
 +'-id-l m = refl m
@@ -82,12 +82,13 @@ s x +' y = x +' s y
 
 +'-assoc : (m n p : Nat) → ((m +' n) +' p) ≡ (m +' (n +' p))
 +'-assoc z n p = refl (n +' p)
-+'-assoc (s m) n p = ≡-trans (+'-assoc m (s n) p) (≡-comm (≡-cong (m +'_) (+'-lemma3 n p)))
++'-assoc (s m) n p = ≡-trans (+'-assoc m (s n) p) (≡-comm (≡-cong (m +'_) (s+' n p)))
 
 +≣+' : (m n : Nat) → (m + n) ≡ (m +' n)
 +≣+' z n = refl n
-+≣+' (s m) n =  ≡-trans (+-lemma2 m n) (+≣+' m (s n))
++≣+' (s m) n =  ≡-trans (+-shift-s m n) (+≣+' m (s n))
 
+-- # Multiplication
 _*_ : Nat → Nat → Nat
 z * n = z
 s m * n = n + (n * m) -- alternating multiplication was the key!
@@ -103,28 +104,28 @@ s m *' n = n + (m * n)
 *-comm (s m) z = refl z
 *-comm (s m) (s n) = ≡-cong s (≡-trans (+-assocom n m (m * n)) (≡-cong (λ x → m + (n + x)) (*-comm m n)))
 
-*-zero-r : (m : Nat) → (m * z) ≡ z
-*-zero-r z = refl z
-*-zero-r (s m) = refl z
+*z : (m : Nat) → (m * z) ≡ z
+*z z = refl z
+*z (s m) = refl z
 
-*-zero-l : (m : Nat) → (z * m) ≡ z
-*-zero-l z = refl z
-*-zero-l (s m) = refl z
+z* : (m : Nat) → (z * m) ≡ z
+z* z = refl z
+z* (s m) = refl z
 
-*-id-r : (m : Nat) → (m * s z) ≡ m
-*-id-r z = refl z
-*-id-r (s m) = ≡-trans (≡-cong (λ x → s (m + x)) (*-zero-r m)) ((≡-cong s (+-id-r m)))
+*sz : (m : Nat) → (m * s z) ≡ m
+*sz z = refl z
+*sz (s m) = ≡-trans (≡-cong (λ x → s (m + x)) (*z m)) ((≡-cong s (+z m)))
 
-*-id-l : (m : Nat) → (s z * m) ≡ m
-*-id-l z = refl z
-*-id-l (s m) = ≡-cong s (+-id-r m)
+sz* : (m : Nat) → (s z * m) ≡ m
+sz* z = refl z
+sz* (s m) = ≡-cong s (+z m)
 
-*-id-r' : (m : Nat) → m ≡ (m * s z)
-*-id-r' m = ≡-comm (*-id-r m)
+*sz-comm : (m : Nat) → m ≡ (m * s z)
+*sz-comm m = ≡-comm (*sz m)
 
-*-lemma1 : (m n : Nat) → (m * s n) ≡ (m + (m * n))
-*-lemma1 z n = refl z
-*-lemma1 (s m) n = ≡-cong s (≡-trans (+-assocom n m (m * n)) (≡-cong (λ x → m + (n + x)) (*-comm m n)))
+*s : (m n : Nat) → (m * s n) ≡ (m + (m * n))
+*s z n = refl z
+*s (s m) n = ≡-cong s (≡-trans (+-assocom n m (m * n)) (≡-cong (λ x → m + (n + x)) (*-comm m n)))
 
 *≣*' : (m n : Nat) → (m * n) ≡ (m *' n)
 *≣*' z n = refl z
@@ -148,8 +149,8 @@ s m *' n = n + (m * n)
     *-assoc' : (m n p : Nat) → ((m * n) * p) ≡ (m * (n * p))
     *-assoc' m n p = ≡-comm (*-assoc m n p)
 
-*-assoc' : (m n p : Nat) → ((m * n) * p) ≡ (m * (n * p))
-*-assoc' m n p = ≡-comm (*-assoc m n p)
+*-assoc-comm : (m n p : Nat) → ((m * n) * p) ≡ (m * (n * p))
+*-assoc-comm m n p = ≡-comm (*-assoc m n p)
 
 -- # Exponentials
 _^_ : Nat → Nat → Nat
@@ -160,11 +161,11 @@ s m ^ s n = s m * (s m ^ n)
 
 sz^ : ∀ (n : Nat) → (s z ^ n) ≡ s z
 sz^ z = refl (s z)
-sz^ (s n) = ≡-trans (≡-cong ((s z ^ n) +_) (*-zero-r (s z ^ n))) (≡-trans (+-id-r (s z ^ n)) (sz^ n))
+sz^ (s n) = ≡-trans (≡-cong ((s z ^ n) +_) (*z (s z ^ n))) (≡-trans (+z (s z ^ n)) (sz^ n))
 
 ^sz : ∀ (x : Nat) → (x ^ s z) ≡ x
 ^sz z = refl z
-^sz (s x) = ≡-trans (≡-cong (λ b → s (x + b)) (*-zero-r x)) (≡-cong s (+-id-r x))
+^sz (s x) = ≡-trans (≡-cong (λ b → s (x + b)) (*z x)) (≡-cong s (+z x))
 
 ^z : ∀ (n : Nat) → (n ^ z) ≡ s z
 ^z z = refl (s z)
@@ -174,13 +175,13 @@ sz^ (s n) = ≡-trans (≡-cong ((s z ^ n) +_) (*-zero-r (s z ^ n))) (≡-trans 
 ^s z m = refl z
 ^s (s x) m = refl ((s x ^ m) + ((s x ^ m) * x))
 
-^+' : ∀ (x m n : Nat) → ((x ^ m) * (x ^ n)) ≡ (x ^ (m + n))
-^+' z z n = ≡-trans (≡-cong ((z ^ n) +_) (*-zero-r (z ^ n))) (+-id-r (z ^ n))
-^+' (s x) z n = ≡-trans (≡-cong ((s x ^ n) +_) (*-zero-r (s x ^ n))) (+-id-r (s x ^ n))
-^+' x (s m) n = ≡-trans (≡-cong (_* (x ^ n))(^s x m)) (≡-trans (*-assoc' x (x ^ m) (x ^ n)) (≡-trans (≡-cong (x *_) (^+' x m n)) (≡-comm (^s x (m + n)))))
+^+ : ∀ (x m n : Nat) → ((x ^ m) * (x ^ n)) ≡ (x ^ (m + n))
+^+ z z n = ≡-trans (≡-cong ((z ^ n) +_) (*z (z ^ n))) (+z (z ^ n))
+^+ (s x) z n = ≡-trans (≡-cong ((s x ^ n) +_) (*z (s x ^ n))) (+z (s x ^ n))
+^+ x (s m) n = ≡-trans (≡-cong (_* (x ^ n))(^s x m)) (≡-trans (*-assoc-comm x (x ^ m) (x ^ n)) (≡-trans (≡-cong (x *_) (^+ x m n)) (≡-comm (^s x (m + n)))))
 
-^+ : ∀ (x m n : Nat) → (x ^ (m + n)) ≡ ((x ^ m) * (x ^ n))
-^+ x m n = ≡-comm (^+' x m n)
+^+-comm : ∀ (x m n : Nat) → (x ^ (m + n)) ≡ ((x ^ m) * (x ^ n))
+^+-comm x m n = ≡-comm (^+ x m n)
 
 -- Ref: https://en.wikipedia.org/wiki/Binomial_theorem
 binomial' : ∀ (x y m n : Nat) → Nat
@@ -201,14 +202,14 @@ binomial^s : ∀ (x y m : Nat) → binomial x y (s m) ≡ ((binomial x y (s z)) 
 binomial^s x y z = ≡-comm (lemma x y)
   where
     lemma : ∀ (x y : Nat) → (binomial x y (s z) * binomial x y z) ≡ (binomial x y (s z))
-    lemma x y = ≡-trans (≡-cong ((binomial x y (s z)) *_) (binomial^z x y)) (*-id-r (binomial x y (s z)))
+    lemma x y = ≡-trans (≡-cong ((binomial x y (s z)) *_) (binomial^z x y)) (*sz (binomial x y (s z)))
 binomial^s x y (s m) = ≡-comm (lemma x y m)
   where
     lemma : ∀ (x y m : Nat) → (binomial x y (s z) * binomial x y (s m)) ≡ binomial x y (s (s m))
     lemma x y m = ≡-trans (≡-cong (binomial x y (s z) *_) (binomial^s x y m)) (≡-trans (≡-cong ((binomial x y (s z)) *_) (≡-comm (binomial^s x y m))) (≡-comm (binomial^s x y (s m))))
 
 binomial^sz : ∀ (x y : Nat) → binomial x y (s z) ≡ (x + y)
-binomial^sz x y = ≡-trans (binomial≡binomial' x y (s z)) (≡-trans (≡-cong (((x ^ s z) * (y ^ z)) +_) (^sz y)) (≡-trans (≡-cong (λ b → (b * (y ^ z)) + y) (^sz x)) (≡-trans (≡-cong (λ b → (x * b) + y) (^z y)) (≡-cong (_+ y) (*-id-r x)))))
+binomial^sz x y = ≡-trans (binomial≡binomial' x y (s z)) (≡-trans (≡-cong (((x ^ s z) * (y ^ z)) +_) (^sz y)) (≡-trans (≡-cong (λ b → (b * (y ^ z)) + y) (^sz x)) (≡-trans (≡-cong (λ b → (x * b) + y) (^z y)) (≡-cong (_+ y) (*sz x)))))
 
 +^s : ∀ (x y m : Nat) → ((x + y) ^ (s m)) ≡ ((x + y) * ((x + y) ^ m))
 +^s x y m = ^s (x + y) m
@@ -224,21 +225,21 @@ binomial^sz x y = ≡-trans (binomial≡binomial' x y (s z)) (≡-trans (≡-con
 *^ x y z = ≡-trans (^z (x * y)) (≡-comm (lemma x y))
   where
     lemma : ∀ (x y : Nat) → ((x ^ z) * (y ^ z)) ≡ s z
-    lemma x y = ≡-trans (≡-cong (_* (y ^ z)) (^z x)) (≡-trans (≡-cong ((y ^ z) +_) (*-zero-r (y ^ z))) (≡-cong (_+ z) (^z y)))
+    lemma x y = ≡-trans (≡-cong (_* (y ^ z)) (^z x)) (≡-trans (≡-cong ((y ^ z) +_) (*z (y ^ z))) (≡-cong (_+ z) (^z y)))
 *^ x y (s m) = ≡-trans (^s (x * y) m) (≡-trans (≡-cong ((x * y) *_) (*^ x y m)) (≡-comm (lemma x y m)))
   where
     lemma : ∀ (x y m : Nat) → ((x ^ s m) * (y ^ s m)) ≡ ((x * y) * ((x ^ m) * (y ^ m)))
-    lemma x y m = ≡-trans (≡-cong (_* (y ^ s m)) (^s x m)) (≡-trans (≡-cong ((x * (x ^ m)) *_) (^s y m)) (≡-trans (*-assoc' x (x ^ m) (y * (y ^ m))) (≡-trans (≡-cong (x *_) (*-assoc (x ^ m) (y) (y ^ m))) (≡-trans (≡-cong (λ b → x * (b * (y ^ m))) (*-comm (x ^ m) y)) (≡-trans (≡-cong (x *_) (*-assoc' y (x ^ m) (y ^ m))) (*-assoc x y ((x ^ m) * (y ^ m))))))))
+    lemma x y m = ≡-trans (≡-cong (_* (y ^ s m)) (^s x m)) (≡-trans (≡-cong ((x * (x ^ m)) *_) (^s y m)) (≡-trans (*-assoc-comm x (x ^ m) (y * (y ^ m))) (≡-trans (≡-cong (x *_) (*-assoc (x ^ m) (y) (y ^ m))) (≡-trans (≡-cong (λ b → x * (b * (y ^ m))) (*-comm (x ^ m) y)) (≡-trans (≡-cong (x *_) (*-assoc-comm y (x ^ m) (y ^ m))) (*-assoc x y ((x ^ m) * (y ^ m))))))))
 
 ^^ : ∀ (x m n : Nat) → ((x ^ m) ^ n) ≡ (x ^ (m * n))
 ^^ x m z = ≡-trans (^z (x ^ m)) (≡-comm (lemma x m))
   where
     lemma : ∀ (x m : Nat) → (x ^ (m * z)) ≡ s z
-    lemma x m = ≡-trans (≡-cong (x ^_) (*-zero-r m)) (^z x)
+    lemma x m = ≡-trans (≡-cong (x ^_) (*z m)) (^z x)
 ^^ x m (s n) = ≡-trans (^s (x ^ m) n) (≡-comm (lemma x m n))
   where
     lemma : ∀ (x m n : Nat) → (x ^ (m * s n)) ≡ ((x ^ m) * ((x ^ m) ^ n))
-    lemma x m n = ≡-trans (≡-cong (x ^_) (*-lemma1 m n) ) (≡-trans (^+ x m (m * n)) (≡-cong ((x ^ m) *_) (≡-comm (^^ x m n))))
+    lemma x m n = ≡-trans (≡-cong (x ^_) (*s m n) ) (≡-trans (^+-comm x m (m * n)) (≡-cong ((x ^ m) *_) (≡-comm (^^ x m n))))
 
 ^* : ∀ (x m n : Nat) → (x ^ (m * n)) ≡ ((x ^ m) ^ n)
 ^* x m n = ≡-comm (^^ x m n)
