@@ -17,3 +17,19 @@ data _≡_ {A : Set} : (x : A) → A → Set where
 
 ≡-subst : { A : Set } { x y : A } ( P : A → Set ) → x ≡ y → P x → P y -- TODO: Why not P x ≡ P y?
 ≡-subst pred (refl x) prop = prop
+
+infix  1 begin_
+infixr 2 _≡⟨⟩_ _≡⟨_⟩_
+infix  3 _∎
+
+begin_ : ∀ {A : Set} {x y : A} → x ≡ y → x ≡ y
+begin x≡y = x≡y
+
+_≡⟨⟩_ : ∀ {A : Set} (x : A) {y : A} → x ≡ y → x ≡ y
+x ≡⟨⟩ x≡y = x≡y
+
+_≡⟨_⟩_ : ∀ {A : Set} (x : A) {y z : A} → x ≡ y  → y ≡ z → x ≡ z
+x ≡⟨ x≡y ⟩ y≡z  =  ≡-trans x≡y y≡z
+
+_∎ : ∀ {A : Set} (x : A) → x ≡ x
+x ∎ = refl x
