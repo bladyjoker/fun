@@ -37,4 +37,4 @@ library
     build-depends:    base ^>=4.14.3.0, ghc -any
     hs-source-dirs:   src
     default-language: Haskell2010
-    exposed-modules:     LIVector
+    exposed-modules:     LIVector, TypeEquality
