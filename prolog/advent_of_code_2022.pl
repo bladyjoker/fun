@@ -1,5 +1,6 @@
 :- use_module(library(dcg/basics)).
 :- use_module(library(solution_sequences)).
+:- use_module(library(clpfd)).
 :- set_prolog_flag(double_quotes, codes).
 
 input_1_elf([]) --> blank.
@@ -36,6 +37,7 @@ challenge_1b(Solution) :-
                    [desc(Calories)],
                    sum_by_elf(Input, _, Calories)
                )
+
               )
          ),
         Solution
@@ -78,9 +80,9 @@ score_game(Them-Me, Score) :-
     score_move(Me, MScore),
     Score is OScore + MScore.
 
-challenge_2(Total) :-
+challenge_2(Solution) :-
     phrase_from_file(input_2(Input), "input_2"),
-    aggregate_all(sum(S), (member(G, Input), score_game(G, S)), Total).
+    aggregate_all(sum(S), (member(G, Input), score_game(G, S)), Solution).
 
 input_2_correctify(rock, lose).
 input_2_correctify(paper, draw).
@@ -94,7 +96,7 @@ choose_strategy(paper-win, scissors).
 choose_strategy(scissors-lose, paper).
 choose_strategy(scissors-win, rock).
 
-challenge_2b(Total) :-
+challenge_2b(Solution) :-
     phrase_from_file(input_2(Input), "input_2"),
     aggregate_all(
         sum(S),
@@ -104,7 +106,7 @@ challenge_2b(Total) :-
             choose_strategy(Them-Me_, MyMove),
             score_game(Them-MyMove, S)
         ),
-        Total
+        Solution
     ).
 
 input_3([]) --> eos.
@@ -130,7 +132,7 @@ priority(C, I_) :-
     I is I_ + (IA - IA_),
     char_code(C, I).
 
-challenge_3(Total) :-
+challenge_3(Solution) :-
     phrase_from_file(input_3(Input), "input_3"),
     aggregate_all(
         sum(S),
@@ -144,9 +146,9 @@ challenge_3(Total) :-
             char_code(C, I),
             priority(C, S)
         ),
-        Total).
+        Solution).
 
-challenge_3b(Total) :-
+challenge_3b(Solution) :-
     phrase_from_file(input_3b(Input), "input_3"),
     aggregate_all(
         sum(S),
@@ -161,7 +163,7 @@ challenge_3b(Total) :-
             char_code(C, I),
             priority(C, S)
         ),
-        Total).
+        Solution).
 
 input_3b([]) --> eos.
 input_3b([R1-R2-R3|Rs]) -->
@@ -169,3 +171,63 @@ input_3b([R1-R2-R3|Rs]) -->
     input_3_rucksack(R2),
     input_3_rucksack(R3),
     input_3b(Rs).
+
+
+input_4([]) --> eos.
+input_4([A|As]) --> input_4_assignment(A), blank, input_4(As).
+
+input_4_assignment(range(A,B)-range(M,N)) --> number(A), "-", number(B), ",", number(M), "-", number(N).
+
+range_within(range(A,B), range(M,N)) :-
+    A #>= M,
+    N #>= B.
+
+range_overlaps(range(A,B), range(M,N)) :-
+    A #>= M,
+    N #>= B.
+
+challenge_4(Solution) :-
+    phrase_from_file(input_4(Input), "input_4"),
+    aggregate_all(
+        count,
+        (
+            member(X-Y, Input),
+            (range_within(X,Y)
+              -> true;
+                 (range_within(Y,X) -> true; fail)
+            )
+        ),
+        Solution
+    ).
+
+:- begin_tests(aoc2022).
+
+test(challenge_1, [nondet]) :-
+    challenge_1(Solution),
+    Solution =:= 70369.
+
+test(challenge_1b, [nondet]) :-
+    challenge_1b(Solution),
+    Solution =:= 203002.
+
+test(challenge_2, [nondet]) :-
+    challenge_2(Solution),
+    Solution =:= 10404.
+
+test(challenge_2b, [nondet]) :-
+    challenge_2b(Solution),
+    Solution =:= 10334.
+
+test(challenge_3, [nondet]) :-
+    challenge_3(Solution),
+    Solution =:= 8493.
+
+test(challenge_3b, [nondet]) :-
+    challenge_3b(Solution),
+    Solution =:= 2552.
+
+test(challenge_4, [nondet]) :-
+    challenge_4(Solution),
+    Solution =:= 526.
+
+:- end_tests(aoc2022).
