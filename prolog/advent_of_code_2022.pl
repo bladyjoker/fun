@@ -183,8 +183,8 @@ range_within(range(A,B), range(M,N)) :-
     N #>= B.
 
 range_overlaps(range(A,B), range(M,N)) :-
-    A #>= M,
-    N #>= B.
+    B #>= M ->
+        (N #>= B -> true; (M #>= A -> true; (N #>= A -> true; fail))).
 
 challenge_4(Solution) :-
     phrase_from_file(input_4(Input), "input_4"),
@@ -196,6 +196,17 @@ challenge_4(Solution) :-
               -> true;
                  (range_within(Y,X) -> true; fail)
             )
+        ),
+        Solution
+    ).
+
+challenge_4b(Solution) :-
+    phrase_from_file(input_4(Input), "input_4"),
+    aggregate_all(
+        count,
+        (
+            member(X-Y, Input),
+            range_overlaps(X,Y)
         ),
         Solution
     ).
@@ -229,5 +240,9 @@ test(challenge_3b, [nondet]) :-
 test(challenge_4, [nondet]) :-
     challenge_4(Solution),
     Solution =:= 526.
+
+test(challenge_4b, [nondet]) :-
+    challenge_4b(Solution),
+    Solution =:= 886.
 
 :- end_tests(aoc2022).
